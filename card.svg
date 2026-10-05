@@ -1,0 +1,62 @@
+
+<svg width="520" height="350" viewBox="0 0 520 350" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <style>
+        .card {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .main-label { font-size: 18px; fill: #4b5563; }
+        .main-value { font-size: 56px; font-weight: 700; fill: #EF4444; }
+        .main-unit { font-size: 24px; font-weight: 500; fill: #EF4444; }
+        .total-value { font-size: 15px; font-weight: 500; fill: #4b5563; text-anchor: middle; }
+        .details-label { font-size: 14px; font-weight: 500; fill: #4b5563; }
+        .details-value { font-size: 16px; font-weight: 600; fill: #1f2937; }
+        .details-value.success { fill: #10B981; }
+        .details-sub-text { font-size: 13px; fill: #9ca3af; }
+        .footer-text { font-size: 12px; fill: #6b7280; text-anchor: middle; }
+    </style>
+    <defs>
+        <linearGradient id="card-background" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#fdfdfe; stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#f7f8fa; stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect x="0.5" y="0.5" width="519" height="349" rx="16" fill="url(#card-background)" stroke="#d1d5db"/>
+    
+    <!-- [修复] 修正了SVG path的语法错误，这是导致Markdown无法显示的关键 -->
+    <path d="M 0.5 305 H 519.5 V 333.5 A 16 16 0 0 1 503.5 349.5 H 16.5 A 16 16 0 0 1 0.5 333.5 V 305 Z" fill="#f9fafb"/>
+
+    <g class="card">
+        <!-- Main Result Area -->
+        <text x="260" y="60" text-anchor="middle" class="main-label">剩余价值约</text>
+        <text x="260" y="115" text-anchor="middle">
+            <tspan class="main-value">{{remainingValue}}</tspan>
+            <tspan class="main-unit" dy="-5"> 元</tspan>
+        </text>
+        <text x="260" y="140" class="total-value">总价值: {{totalValue}} 元</text>
+        <line x1="30" y1="165" x2="490" y2="165" stroke="#e5e7eb" />
+        <g transform="translate(40, 185)">
+            <g>
+                <text x="0" y="15" class="details-label">剩余时间</text>
+                <text x="0" y="38" class="details-value success">{{remainingDays}} 天</text>
+                <text x="0" y="58" class="details-sub-text">于 {{expiry}} 过期</text>
+            </g>
+            <g transform="translate(0, 75)">
+                <text x="0" y="15" class="details-label">交易日期</text>
+                <text x="0" y="38" class="details-value">{{trade}}</text>
+            </g>
+            <g transform="translate(240, 0)">
+                 <text x="0" y="15" class="details-label">续费价格</text>
+                 <text x="0" y="38" class="details-value">{{renewal}}</text>
+            </g>
+             <g transform="translate(240, 75)">
+                <text x="0" y="15" class="details-label">采用汇率</text>
+                <text x="0" y="38" class="details-value">{{rate}}</text>
+            </g>
+        </g>
+        <line x1="0.5" y1="305" x2="519.5" y2="305" stroke="#d1d5db" stroke-width="0.5" />
+        <text x="260" y="328" class="footer-text">由 {{siteUrl}} 生成</text>
+    </g>
+</svg>
+    

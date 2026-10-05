@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vpsvalue",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-05",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/card", "/health"]
+  },
+  "rules": [
+    { "type": "Text", "globs": ["**/*.svg"], "fallthrough": true }
+  ]
+}

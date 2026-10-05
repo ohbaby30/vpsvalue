@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VPS 剩余价值计算器</title>
+  <meta name="keywords" content="计算器，VPS，剩余价值，在线工具, 静态, UI, 设计" />
+  <meta name="description"
+    content="一个纯静态 VPS 剩余价值计算器。计算 VPS 的剩余价值" />
+  <link href="/assets/inter.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236D28D9'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 14.5L6 12l1.41-1.41L10.5 13.67l6.09-6.09L18 9l-7.5 7.5z'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/assets/flatpickr.min.css">
+<style>
+    :root {
+        --font-family-main: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        --color-primary: #6D28D9; /* A vibrant purple */
+        --color-primary-light: #8B5CF6;
+        --color-primary-dark: #5B21B6;
+        --color-text-dark: #1f2937;
+        --color-text-light: #4b5563;
+        --color-text-subtle: #9ca3af;
+        --color-bg-card: rgba(255, 255, 255, 0.75);
+        --color-border: #d1d5db;
+        --color-success: #10B981;
+        --color-error: #EF4444;
+        --card-padding: 2.5rem;
+        --border-radius: 1rem;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    /* --- Base & Layout --- */
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+    html {
+        scroll-behavior: smooth;
+    }
+    body {
+        margin: 0;
+        font-family: var(--font-family-main);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%);
+        color: var(--color-text-dark);
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+    }
+    #app {
+        width: 100%;
+        max-width: 520px;
+    }
+    /* --- Main Calculator Card --- */
+    .calculator-card {
+        background: var(--color-bg-card);
+        border-radius: var(--border-radius);
+        padding: var(--card-padding);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease-in-out;
+    }
+    @media (max-width: 600px) {
+        .calculator-card {
+            padding: 1.5rem;
+        }
+    }
+    /* --- Header --- */
+    header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    header h1 {
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(45deg, var(--color-primary), var(--color-primary-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    header p {
+        margin: 0.25rem 0 0;
+        color: var(--color-text-light);
+    }
+    /* --- Form Styling --- */
+    .form-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+    .form-row {
+        display: flex;
+        gap: 1rem;
+    }
+    .form-row > .form-group {
+        flex: 1;
+    }
+    @media (max-width: 600px) {
+        .form-row {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--color-text-light);
+    }
+    .input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    .input-wrapper .input-icon {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1rem;
+        height: 1rem;
+        color: var(--color-text-subtle);
+        pointer-events: none;
+    }
+    input, select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-family: var(--font-family-main);
+        font-size: 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        background-color: #fff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+    .input-wrapper input {
+      padding-left: 2.5rem;
+    }
+    input[type="date"] {
+      padding-left: 2.5rem;
+    }
+    select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+    input:focus, select:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.2);
+    }
+    input.error {
+      border-color: var(--color-error);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+    .reference-rate-display {
+      font-size: 0.8rem;
+      color: var(--color-text-subtle);
+      margin-top: 0.5rem;
+    }
+    /* --- Calculate Button --- */
+    .calculate-btn {
+        width: 100%;
+        padding: 1rem;
+        margin-top: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        background-color: var(--color-primary);
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    .calculate-btn:hover {
+        background-color: var(--color-primary-light);
+    }
+    .calculate-btn:active {
+        transform: scale(0.98);
+    }
+    .calculate-btn:disabled {
+        background-color: var(--color-text-subtle);
+        cursor: not-allowed;
+    }
+    .rotating {
+        animation: rotate 1s linear infinite;
+    }
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    /* --- Results Section --- */
+    .results-container {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--color-border);
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.7s ease-in-out, opacity 0.5s 0.2s ease-in-out;
+    }
+    .results-container.show {
+        max-height: 500px;
+        opacity: 1;
+    }
+    .main-result {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .main-result .label {
+        font-size: 1.1rem;
+        color: var(--color-text-light);
+        margin-bottom: 0.5rem;
+    }
+    .main-result .value {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--color-error);
+    }
+    .main-result .currency-unit {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: var(--color-error);
+        margin-left: 0.25rem;
+    }
+    .total-value-display {
+        text-align: right;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--color-text-light);
+        margin-top: 0.25rem;
+        padding-right: 0.5rem;
+    }
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem 2rem;
+        font-size: 0.95rem;
+    }
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .detail-item .label {
+        color: var(--color-text-light);
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+    .detail-item .value {
+        font-weight: 600;
+        color: var(--color-text-dark);
+    }
+    .detail-item .value.success {
+        color: var(--color-success);
+    }
+    .detail-item .sub-text {
+        font-size: 0.8rem;
+        color: var(--color-text-subtle);
+    }
+    /* --- Share & Actions --- */
+    .share-actions {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    .share-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: #f3f4f6;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        color: var(--color-text-light);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .share-btn:hover {
+        background-color: #e5e7eb;
+        color: var(--color-text-dark);
+        border-color: #9ca3af;
+    }
+    /* --- Toast Notifications --- */
+    #toast {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .toast {
+        min-width: 250px;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        box-shadow: var(--shadow);
+        animation: slide-in 0.3s ease, fade-out 0.3s 3.5s ease forwards;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    @keyframes slide-in {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fade-out {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    .toast.success { background-color: var(--color-success); color: #fff; }
+    .toast.error { background-color: var(--color-error); color: #fff; }
+    .toast.tips { background-color: var(--color-primary); color: #fff; }
+</style>
+</head>
+<body>
+  <div id="app">
+    <div class="calculator-card">
+        <header>
+            <h1>VPS 剩余价值计算器</h1>
+            <p>纯静态构建</p>
+        </header>
+        <form id="frm" novalidate>
+            <div class="form-grid">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="currency_code">货币</label>
+                        <select id="currency_code" name="currency_code" required tabindex="1">
+                          <option value="CNY">人民币 (CNY)</option>
+                          <option value="USD" selected>美元 (USD)</option>
+                          <option value="GBP">英镑 (GBP)</option>
+                          <option value="EUR">欧元 (EUR)</option>
+                          <option value="JPY">日元 (JPY)</option>
+                          <option value="KRW">韩元 (KRW)</option>
+                          <option value="HKD">港元 (HKD)</option>
+                          <option value="TWD">新台币(TWD)</option>
+                          <option value="CAD">加拿大元(CAD)</option>
+                          <option value="SGD">新加坡元(SGD)</option>
+                          <option value="AUD">澳大利亚元(AUD)</option>
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label for="exchange_rate">外币汇率 (CNY)</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v1.516a23.03 23.03 0 00-3.32.134.75.75 0 00-.546.883 11.5 11.5 0 006.732 0 .75.75 0 00-.546-.883 23.03 23.03 0 00-3.32-.134V5zm-2.113 4.072A.75.75 0 007.5 9.83v2.856a.75.75 0 001.26.556 12.03 12.03 0 003.48 0 .75.75 0 001.26-.556V9.83a.75.75 0 00-1.147-.658 13.532 13.532 0 01-3.746 0z" clip-rule="evenodd" /></svg>
+                            <input type="number" id="exchange_rate" name="exchange_rate" required value="0.000" min="0.000" step="0.001" tabindex="2" />
+                        </div>
+                        <div id="reference_rate_display" class="reference-rate-display">(正在获取实时汇率...)</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="renew_money">续费金额</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 10.837V5.5a.75.75 0 00-1.5 0v5.337l-1.37-1.37a.75.75 0 00-1.06 1.06l2.5 2.5a.75.75 0 001.06 0l2.5-2.5a.75.75 0 10-1.06-1.06l-1.07 1.07z" /><path fill-rule="evenodd" d="M9.455 1.45A.75.75 0 0110 1h.001c4.545 0 8.25 3.705 8.25 8.25L18.25 10a.75.75 0 01-1.5 0l-.001-.25A6.75 6.75 0 0010 3.25a6.75 6.75 0 00-6.75 6.75l-.001.25a.75.75 0 01-1.5 0l.001-.25C1.75 4.705 5.456 1 10 1h-.001a.75.75 0 01-.544.45z" clip-rule="evenodd" /></svg>
+                            <input type="number" id="renew_money" name="renew_money" required value="1.00" min="0.000" step="0.01" tabindex="3" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment_cycle">付款周期</label>
+                        <select id="payment_cycle" name="payment_cycle" required tabindex="4">
+                          <option value="monthly">月付</option>
+                          <option value="quarterly">季付</option>
+                          <option value="semiannually">半年付</option>
+                          <option value="annually" selected>年付</option>
+                          <option value="biennially">两年付</option>
+                          <option value="triennially">三年付</option>
+                          <option value="quinquennially">五年付</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiry_date">到期日期</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 8.5v6.75c0 .138.112.25.25.25h10.5a.25.25 0 00.25-.25V8.5h-11z" clip-rule="evenodd" /></svg>
+                            <input type="date" id="expiry_date" name="expiry_date" required tabindex="5" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="trade_date">交易日期</label>
+                         <div class="input-wrapper">
+                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 8.5v6.75c0 .138.112.25.25.25h10.5a.25.25 0 00.25-.25V8.5h-11z" clip-rule="evenodd" /></svg>
+                            <input type="date" id="trade_date" name="trade_date" required tabindex="6" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="calculate_btn" class="calculate-btn">
+              <div id="calculate_text">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1.363-8.363a.75.75 0 010 1.06l-2.75 2.75a.75.75 0 01-1.06-1.06l2.75-2.75a.75.75 0 011.06 0zM12.81 7.19a.75.75 0 011.06 1.06L9.62 12.5a.75.75 0 01-1.06-1.06l4.25-4.25z" clip-rule="evenodd" /></svg>
+                <span>计算剩余价值</span>
+              </div>
+              <div id="calculate_loading" style="display: none;">
+                <svg class="rotating" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20"> <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.18-3.185m-14.942-2.553a2.25 2.25 0 012.25-2.25 2.25 2.25 0 012.25 2.25M15.75 15.75a2.25 2.25 0 10-4.5 0 2.25 2.25 0 004.5 0z" /></svg>
+                <span>正在计算...</span>
+              </div>
+            </button>
+        </form>
+        <div id="results_container" class="results-container">
+            <div class="main-result">
+                <div class="label">剩余价值约</div>
+                <div>
+                    <span class="value" id="output_remain_value">0.00</span>
+                    <span class="currency-unit">元</span>
+                </div>
+                <div id="output_total_value_main" class="total-value-display"></div>
+            </div>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="label">剩余时间</div>
+                    <div class="value success" id="output_remain_days">0 天</div>
+                    <div class="sub-text" id="output_expiry_date">于 0000-00-00 过期</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">续费价格</div>
+                    <div class="value" id="output_renewal">0.00 USD / 年</div>
+                </div>
+                 <div class="detail-item">
+                    <div class="label">交易日期</div>
+                    <div class="value" id="output_trade_date">0000-00-00</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">采用汇率</div>
+                    <div class="value" id="output_exchange_rate">0.0000</div>
+                </div>
+            </div>
+            <div class="share-actions">
+                <button id="view_btn" class="share-btn">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" /><path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.18l3.75-3.75a1.651 1.651 0 112.333 2.333L4.46 9.404a.25.25 0 000 .392l2.288 2.287a1.651 1.651 0 11-2.333 2.333l-3.75-3.75zm18.672-1.18a1.651 1.651 0 00-2.333-2.333L14.712 9.404a.25.25 0 000 .392l2.288 2.287a1.651 1.651 0 102.333-2.333l-3.75-3.75z" clip-rule="evenodd" /></svg>
+                   <span>分享卡片</span>
+                </button>
+                 <button id="copy_btn" class="share-btn">
+                    <div id="copy_icon_default" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M7.5 3.75A1.75 1.75 0 005.75 5.5v10.5a1.75 1.75 0 001.75 1.75h5A1.75 1.75 0 0014.25 16V5.5A1.75 1.75 0 0012.5 3.75h-5zM9 4.5a.5.5 0 01.5.5v.75a.75.75 0 01-1.5 0V5a.5.5 0 01.5-.5z" /><path d="M8.25 3A3.25 3.25 0 005 6.25v9.5A3.25 3.25 0 008.25 19h3.5A3.25 3.25 0 0015 15.75v-9.5A3.25 3.25 0 0011.75 3h-3.5z" /></svg>
+                        <span>复制链接</span>
+                    </div>
+                     <div id="copy_icon_success" style="display: none; align-items: center; gap: 0.5rem; color: var(--color-success)">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>
+                         <span>已复制</span>
+                    </div>
+                </button>
+            </div>
+            <input id="is_calculated" type="hidden" value="0" />
+        </div>
+    </div>
+    <div id="toast"></div>
+  </div>
+<script src="/assets/flatpickr.min.js"></script>
+<script src="/assets/zh.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const STATIC_RATES = { "USD": 7.25, "GBP": 9.20, "EUR": 7.85, "JPY": 0.046, "KRW": 0.0053, "HKD": 0.93, "TWD": 0.22, "CAD": 5.30, "SGD": 5.35, "AUD": 4.75, "CNY": 1.0 };
+    let liveRates = {};
+    const CYCLE_DAYS_MAP = { 'monthly': 365.25 / 12, 'quarterly': 365.25 / 4, 'semiannually': 365.25 / 2, 'annually': 365.25, 'biennially': 365.25 * 2, 'triennially': 365.25 * 3, 'quinquennially': 365.25 * 5 };
+    const CYCLE_NAMES_MAP = { 'monthly': '月', 'quarterly': '季', 'semiannually': '半年', 'annually': '年', 'biennially': '两年', 'triennially': '三年', 'quinquennially': '五年' };
+    
+    const form = document.getElementById("frm");
+    const calculateBtn = document.getElementById("calculate_btn");
+    const calculateText = document.getElementById("calculate_text");
+    const calculateLoading = document.getElementById("calculate_loading");
+    const currencyCodeSelect = document.getElementById("currency_code");
+    const referenceRateDisplay = document.getElementById("reference_rate_display");
+    const exchangeRateInput = document.getElementById("exchange_rate");
+    const renewMoneyInput = document.getElementById("renew_money");
+    const paymentCycleSelect = document.getElementById("payment_cycle");
+    const resultsContainer = document.getElementById("results_container");
+    const isCalculatedInput = document.getElementById("is_calculated");
+    const viewBtn = document.getElementById("view_btn");
+    const copyBtn = document.getElementById("copy_btn");
+    const allFormInputs = document.querySelectorAll("#frm input, #frm select");
+
+    function showToast(message, type = "tips") {
+        const toastContainer = document.getElementById("toast");
+        const toast = document.createElement("div");
+        const icon = {
+            success: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>`,
+            error: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>`,
+            tips: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" /></svg>`,
+        }
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `${icon[type] || ''}<span>${message}</span>`;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toastContainer.removeChild(toast); }, 4000);
+    }
+
+    function toggleLoading(show) {
+        calculateText.style.display = show ? "none" : "flex";
+        calculateLoading.style.display = show ? "flex" : "none";
+        calculateBtn.disabled = show;
+    }
+
+    async function copyToClipboard(text) {
+        try { await navigator.clipboard.writeText(text); } catch (err) { console.error('Failed to copy: ', err); const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "absolute"; textArea.style.opacity = 0; document.body.appendChild(textArea); textArea.select(); document.execCommand("copy"); document.body.removeChild(textArea); }
+    }
+
+    function validateAndGetInputs() {
+        let isValid = true;
+        const inputs = { exchangeRate: exchangeRateInput.value, renewMoney: renewMoneyInput.value, expiryDate: document.getElementById("expiry_date").value, tradeDate: document.getElementById("trade_date").value, currencyCode: currencyCodeSelect.value, paymentCycle: paymentCycleSelect.value };
+        allFormInputs.forEach(el => el.classList.remove('error'));
+        for (const key in inputs) {
+            const el = document.getElementById(key.replace(/([A-Z])/g, '_$1').toLowerCase());
+            if (!inputs[key] || String(inputs[key]).trim() === "") { const label = document.querySelector(`label[for=${el.id}]`)?.textContent || key; showToast(`${label.replace("(通常无需修改)","").trim()}不能为空`, "error"); el?.classList.add("error"); isValid = false; }
+        }
+        if (new Date(inputs.tradeDate) > new Date(inputs.expiryDate)) { showToast("交易日期不能晚于到期日期", "error"); document.getElementById("trade_date").classList.add("error"); document.getElementById("expiry_date").classList.add("error"); isValid = false; }
+        return isValid ? inputs : null;
+    }
+
+    async function fetchAndUpdateRates() {
+        try {
+            const response = await fetch('/api/rates');
+            if (!response.ok) {
+                 throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error('API response indicates failure.');
+            }
+            
+            liveRates = data.rates;
+            liveRates['CNY'] = 1;
+
+            updateReferenceRate();
+
+            const updateTime = new Date(data.last_updated_utc).toLocaleString('zh-CN');
+            referenceRateDisplay.textContent = `(实时汇率估算，更新于 ${updateTime})`;
+
+        } catch (error) {
+            console.error("Failed to fetch live rates:", error);
+            showToast("无法加载实时汇率，将使用备用估算值。", "tips");
+            liveRates = { ...STATIC_RATES };
+            updateReferenceRate();
+            referenceRateDisplay.textContent = `(正在使用备用估算汇率)`;
+        }
+    }
+
+    function updateReferenceRate() {
+        const selectedCurrency = currencyCodeSelect.value;
+        const rate = liveRates[selectedCurrency] || STATIC_RATES[selectedCurrency] || 0;
+        exchangeRateInput.value = rate.toFixed(4);
+    }
+
+    function calculate() {
+        toggleLoading(true);
+        const inputs = validateAndGetInputs();
+        if (!inputs) { toggleLoading(false); return; }
+        const renewMoney = parseFloat(inputs.renewMoney);
+        const exchangeRate = parseFloat(inputs.exchangeRate);
+        const tradeDate = new Date(inputs.tradeDate); tradeDate.setHours(0, 0, 0, 0);
+        const expiryDate = new Date(inputs.expiryDate); expiryDate.setHours(23, 59, 59, 999);
+        const totalDaysInCycle = CYCLE_DAYS_MAP[inputs.paymentCycle];
+        const totalValueCNY = renewMoney * exchangeRate;
+        const msPerDay = 1000 * 60 * 60 * 24;
+        const remainingMs = expiryDate.getTime() - tradeDate.getTime();
+        const remainingDays = Math.max(0, Math.ceil(remainingMs / msPerDay));
+        const remainingValueCNY = (totalValueCNY / totalDaysInCycle) * remainingDays;
+        setTimeout(() => {
+            document.getElementById("output_trade_date").textContent = inputs.tradeDate;
+            document.getElementById("output_exchange_rate").textContent = exchangeRate.toFixed(4);
+            document.getElementById("output_renewal").textContent = `${renewMoney.toFixed(2)} ${inputs.currencyCode} / ${CYCLE_NAMES_MAP[inputs.paymentCycle]}`;
+            document.getElementById("output_remain_days").textContent = `${remainingDays} 天`;
+            document.getElementById("output_expiry_date").textContent = `于 ${inputs.expiryDate} 过期`;
+            document.getElementById("output_remain_value").textContent = remainingValueCNY.toFixed(2);
+            document.getElementById("output_total_value_main").textContent = `总价值: ${totalValueCNY.toFixed(2)} 元`;
+            isCalculatedInput.value = "1";
+            resultsContainer.classList.add('show');
+            resultsContainer.scrollIntoView({ behavior: "smooth", block: "end" });
+            toggleLoading(false);
+        }, 500);
+    }
+
+    // --- Share Logic --- (RESTORED TO ORIGINAL)
+    function generateShareUrl() {
+        if (isCalculatedInput.value !== "1") { showToast("请先计算，再进行分享", "error"); return null; }
+        const params = new URLSearchParams({ amount: renewMoneyInput.value, currency: currencyCodeSelect.value, cycle: paymentCycleSelect.value, expiry: document.getElementById("expiry_date").value, rate: exchangeRateInput.value });
+        const sharePath = `/card?${params.toString()}`;
+        return new URL(sharePath, window.location.href).href;
+    }
+
+    // --- Event Listeners --- (RESTORED TO ORIGINAL)
+    function setupEventListeners() {
+        form.addEventListener("submit", (e) => { e.preventDefault(); calculate(); });
+        allFormInputs.forEach(el => { el.addEventListener("change", () => { isCalculatedInput.value = "0"; resultsContainer.classList.remove('show'); el.classList.remove("error"); }); });
+        currencyCodeSelect.addEventListener("change", updateReferenceRate);
+        
+        viewBtn.addEventListener("click", () => { 
+            const url = generateShareUrl(); 
+            if (url) { 
+                window.open(url, "_blank"); 
+            } 
+        });
+
+        copyBtn.addEventListener("click", async () => {
+            const url = generateShareUrl();
+            if (url) {
+                const markdownLink = `![VPS 剩余价值](${url})`;
+                await copyToClipboard(markdownLink);
+                showToast("Markdown 链接已复制到剪贴板", "success");
+                const defaultIcon = document.getElementById("copy_icon_default");
+                const successIcon = document.getElementById("copy_icon_success");
+                defaultIcon.style.display = "none";
+                successIcon.style.display = "flex";
+                setTimeout(() => { defaultIcon.style.display = "flex"; successIcon.style.display = "none"; }, 2000);
+            }
+        });
+    }
+
+    function initialize() {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        flatpickr("#trade_date", { dateFormat: "Y-m-d", locale: "zh", defaultDate: "today" });
+        flatpickr("#expiry_date", { dateFormat: "Y-m-d", locale: "zh", minDate: "today", defaultDate: tomorrow });
+        
+        fetchAndUpdateRates();
+        setupEventListeners();
+    }
+
+    initialize();
+});
+</script>
+</body>
+</html>
